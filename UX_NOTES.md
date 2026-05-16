@@ -119,8 +119,23 @@ change, highest-impact for new users.
 
 ## Design decisions captured so far
 
-- Destructive override commands should **confirm by default**, with `-y`
-  to skip. Matches `database drop`.
+- Destructive override commands **confirm by default**, with `-y` to
+  skip. Matches `database drop`.
+- Recovery commands live under the existing **`migrate override`**
+  namespace (PR #3846 already established it). Subcommand names:
+  `repair-checksum`, `mark-applied`, `mark-unapplied`, `resolve-dirty`,
+  `rerun`. Verbose but discoverable.
+- **`migrate info --check`** uses a documented exit-code contract:
+  - 0 — in sync
+  - 1 — pending migrations exist (no drift)
+  - 2 — drift (checksum mismatch or applied-but-missing)
+  - 3 — dirty (partially-applied migration in the table)
+  Highest condition wins when multiple apply.
+- Fold issue **#1933** (spurious checksum warning on `.down.sql` files)
+  into the Tier 1 info rewrite — it's the same code path.
+- Out of scope for this branch: `migrate unlock`, `--sql` offline mode,
+  schema-snapshot file, lint/validate verb, comment-insensitive
+  checksums. All viable follow-ups.
 
 ## Issue-tracker research (launchbadge/sqlx, open issues)
 
